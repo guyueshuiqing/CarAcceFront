@@ -3,8 +3,8 @@ import { connect } from 'dva'
 import styles from './index.less'
 import {Input,Form, Button} from 'antd'
 // import qs from 'qs'
-import { defaultformLayout,tailLayout } from '../config'
-
+import { defaultformLayout, tailLayout } from '../config'
+/* eslint-disable */
 class AuthFormCreate  extends Component {
   constructor(props) {
     super(props);
@@ -39,14 +39,12 @@ class AuthFormCreate  extends Component {
                   return
                 }
                 resetFields()
-                window.location = '/login'
-                onSubmit()
+                onSubmit(values)
               })
             }}>
               {compName === 'login' ? '登录' : '注册'}
             </Button>
             <Button type="primary" style={{marginLeft:'30px'}} onClick={()=>{
-              window.location = '/login'
               onSecondButton()
             }}>
               {compName === 'login' ? '注册' : '去登录'}

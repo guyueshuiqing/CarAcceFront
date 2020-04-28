@@ -43,7 +43,7 @@ export const RegisterFromData = [
     ]
   },
   {
-    key:'age', 
+    key:'realName', 
     label:"真实姓名",
     rules: [
       { required: true, message: '请输入真实姓名' }

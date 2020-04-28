@@ -1,0 +1,54 @@
+.titleWord{
+  margin-bottom: 10px;
+}
+.authorizationContent{
+  display: flex;
+  flex-direction: row;
+  width: 700px;
+  justify-content: space-between;
+  .authorizationLeft{
+    display: flex;
+    flex-direction: column;
+    width: 49%;
+    .selectedScope{
+      height: 268px;
+      border: 1px solid rgba(155, 155, 155, 0.30);
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      &>p {
+        height: 26px;
+        padding: 2px 13px;
+        background: #F0F2F5;
+        border-radius: 20px;
+        margin: 5px;
+      }
+    }
+  }
+  .authorizeRight{
+    width: 49%;
+    padding-top: 5px;
+    margin-left: 20px;
+    .search {
+      display: flex;
+      justify-content: row;
+      align-items: center;
+      padding-left: 10px;
+      padding-bottom: 10px;
+    }
+    .checkBox{
+      padding: 10px 10px;
+      border: 1px solid rgba(155, 155, 155, 0.30);
+      height: 220px;
+      overflow-y: auto;
+      // :global {
+      //   .ant-checkbox-group {
+      //     display: flex;
+      //     flex-direction: column;
+      //   }
+      // }
+    }
+  }
+}

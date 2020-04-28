@@ -3,9 +3,8 @@ import styles from './fontSize.less'
 
 class CarFont extends PureComponent {
   render() { 
-    const { content } = this.props
-    console.log(content)
-    return ( <i className={styles.iconfont} dangerouslySetInnerHTML={{__html: content}}/> );
+    const { content, style } = this.props
+    return ( <i className={styles.iconfont} style={style} dangerouslySetInnerHTML={{__html: content}}/> );
   }
 }
  

@@ -10,13 +10,22 @@ export default {
       component: '../layouts/index',
       routes: [
         { path: '/', component: '../pages/index' },
-        { path: '/purchase', component: '../pages/purchase' },
-        { path: '/revenue', component: '../pages/revenue' },
-        { path: '/sale', component: '../pages/sale' },
-        { path: '/store', component: '../pages/store' },
+        { path: '/purchase/shengou', component: '../pages/purchase/shengou' },
+        { path: '/purchase/dingdan', component: '../pages/purchase/dingdan' },
+        { path: '/purchase/shouhuo', component: '../pages/purchase/shouhuo' },
+        { path: '/purchase/tuihuo', component: '../pages/purchase/tuihuo' },
+        { path: '/operation/yinshou', component: '../pages/operation/yinshou' },
+        { path: '/operation/jinchukut', component: '../pages/operation/jinchukut' },
+        { path: '/sale/xiaoshoud', component: '../pages/sale/xiaoshoud' },
+        { path: '/sale/xiaoshouk', component: '../pages/sale/xiaoshouk' },
+        { path: '/sale/xiaoshout', component: '../pages/sale/xiaoshout' },
+        { path: '/store/caigour', component: '../pages/store/caigour' },
+        { path: '/store/caigoutc', component: '../pages/store/caigoutc' },
+        { path: '/store/xiaoshouc', component: '../pages/store/xiaoshouc' },
+        { path: '/store/xiaoshoutr', component: '../pages/store/xiaoshoutr' },
+        { path: '/quanxian', component: '../pages/grant' },
         { path: '/login', component: '../pages/auth/login' },
         { path: '/register', component: '../pages/auth/register' },
-        // { path: '/operation/task', component: '../pages/operation/task' },
       ]
     }
   ],
@@ -48,4 +57,25 @@ export default {
       },
     }],
   ],
+  // proxy: {
+  //   '/proxy': {
+  //     target: 'https://localhost:8080/',
+  //     changeOrigin: true,
+  //     pathRewrite: { '/proxy': '' },
+  //     headers: {
+  //       'Access-Control-Allow-Origin': '*',
+  //       withCredentials: true,
+  //       // 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Connection, User-Agent, Cookie'
+  //       // cookie: 'code=531275; skey=IU_5tEOK62TbzpYijOAtFLO9lFVl-0-sIHwSVme4jC4=', // 韦磊
+  //     }
+  //   }
+  // }
+
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8080',
+      pathRewrite: { '^/api': '' },
+      changeOrigin: true
+    }
+  }
 }

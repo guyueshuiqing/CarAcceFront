@@ -20,10 +20,9 @@ export const menu = [
     icon: '&#xe6a7;',
     content:'库存管理 ',
     children: [
-      {key: '/caigour',icon: '&#xe62e;',content:'采购入库'},
-      {key: '/xiaoshouc',icon: '&#xe62e;',content:'销售出库'},
-      {key: '/xiaoshoutr',icon: '&#xe62e;',content:'销售退货入库'},
-      {key: '/caigoutc',icon: '&#xe62e;',content:'采购退货出库'},
+      {key: '/caigour',icon: '&#xe62e;',content:'入库'},
+      {key: '/xiaoshouc',icon: '&#xe62e;',content:'出库'},
+      {key: '/kucun',icon: '&#xe62e;',content:'库存'},
     ]
   },
   {
@@ -32,7 +31,6 @@ export const menu = [
     content:'销售管理 ',
     children: [
       {key: '/xiaoshoud',icon: '&#xe62e;',content:'销售订单'},
-      {key: '/xiaoshouk',icon: '&#xe62e;',content:'销售开单'},
       {key: '/xiaoshout',icon: '&#xe62e;',content:'销售退货'},
     ]
   },

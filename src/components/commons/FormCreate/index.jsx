@@ -3,7 +3,7 @@ import styles from './index.less'
 import {Form, Input, Select, DatePicker, Row, Col } from 'antd'
 
 const { RangePicker } = DatePicker
-
+const { TextArea  } = Input
 const { Option } = Select.Option
 
 const defaultformLayout = {
@@ -16,7 +16,7 @@ const FormSelect = (type, item, size) => {
     case 'input':
       return <Input
         size={size}
-        disabled={item.disabled} 
+        disabled={item.disabled || item.edit} 
         onChange={(e) => {
           item.onChange && item.onChange(e, item)
         }}
@@ -53,9 +53,11 @@ const FormSelect = (type, item, size) => {
         }
       </Select>
     case 'datePicker':
-        return <DatePicker size={size}/>
+        return <DatePicker size={size} disabled={item.edit}/>
     case 'rangePicker':
-        return <RangePicker size={size}/>
+        return <RangePicker size={size} disabled={item.edit}/>
+    case 'textarea':
+      return <TextArea size={size} disabled={item.edit}/>
     default:
       return <Input 
           onChange={(e) => {

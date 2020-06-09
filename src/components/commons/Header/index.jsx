@@ -11,8 +11,11 @@ class Header  extends Component {
   } 
 
   resetForm =()=>{
+    const { getTableData } = this.props
+    console.log('his.props',this.props)
     if (this.formRef.current) {
       this.formRef.current.resetFields()
+      getTableData && getTableData()
     }
   }
 

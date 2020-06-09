@@ -10,7 +10,7 @@ class TableCom extends Component {
     super(props);
     this.state = { 
       scrollY: 1200,
-      newVisible: false,
+      // newVisible: false,
     }
   }
 
@@ -39,15 +39,22 @@ class TableCom extends Component {
 
   // 计算表格宽度设置滚动条
   getWidthAndCol = () =>{
-    const reqColumns = this.props && this.props.reqColumns || []
+    const {reqColumns, otherNewForm} = this.props && this.props
+    let FormColumns = []
     let width = 0
-    const columns = getColumns(reqColumns)
+    const columns = getColumns(this,reqColumns)
+    if(otherNewForm && otherNewForm.length > 0) {
+      FormColumns = getColumns(this,otherNewForm)
+    } else {
+      FormColumns = columns
+    }
     columns.forEach((item)=>{
       width += Number(item.width)
     })
     return {
       scrollWidth: width,
-      columns: columns
+      columns: columns,
+      FormColumns: FormColumns
     }
   }
 
@@ -61,14 +68,16 @@ class TableCom extends Component {
 
 
   render() {
-    const { dataSource, newDis } = this.props
-    const { scrollY, newVisible } = this.state
-    const { scrollWidth, columns } = this.getWidthAndCol()
+    const { dataSource, newDis, newFormSubmit, newModalTitle, newVisible, changeVisiable, edit, selectRow, clearSelectRow, loading } = this.props
+    const { scrollY } = this.state
+    const { scrollWidth, columns, FormColumns } = this.getWidthAndCol()
+    const title = newModalTitle || ''
     return (<div className={styles.tableCom}>
       <Table
         rowKey={i=>i+Math.random(100)+Math.random(100)}
         columns={columns} 
         dataSource={dataSource}
+        loading={loading}
         // loading={!!loading.effects['article/getTeamArticle'] || !!loading.effects['article/getTeams']}
         scroll={{ x: scrollWidth, y: scrollY - 340 }}
         pagination={{
@@ -81,21 +90,24 @@ class TableCom extends Component {
       {
         !newDis &&  <div className={styles.tableBottom}>
           <Button type="primary" style={{position: 'absolute', left: '20px',bottom: '80px'}} onClick={()=>{
-            this.setState({
-              newVisible: true
-            })
-          }}>新建{this.getNewEditName()}</Button>
+            changeVisiable('new')
+            clearSelectRow()
+          }}>{ "新建"+this.getNewEditName()}</Button>
         </div>
       }
       
-      <NewFormModal columns={columns} title={`新建${this.getNewEditName()}`} visible={newVisible} onOk={()=>{
-        this.setState({
-          newVisible: false
-        })
+      <NewFormModal 
+        columns={FormColumns} 
+        selectRow={selectRow} 
+        edit={edit} 
+        title={title} 
+        visible={newVisible} 
+        onOk={(values)=>{
+        changeVisiable()
+        newFormSubmit && newFormSubmit(values)
       }} onCancel={()=>{
-        this.setState({
-          newVisible: false
-        })
+        changeVisiable()
+        clearSelectRow()
       }}/>
     </div>)
   }

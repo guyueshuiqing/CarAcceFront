@@ -27,7 +27,7 @@ function AuthFormCreate(props) {
         }
         <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit" onClick={()=>{
-            console.log('ref.current', ref.current)
+            ('ref.current', ref.current)
             const current = ref.current
             ref.current.validateFields().then(values=>{
               // console.log(_ref)
@@ -40,7 +40,7 @@ function AuthFormCreate(props) {
             {compName === 'login' ? '登录' : '注册'}
           </Button>
           <Button type="primary" style={{marginLeft:'30px'}} onClick={()=>{
-            onSecondButton(ref)
+            onSecondButton(ref.current)
           }}>
             {compName === 'login' ? '注册' : '去登录'}
           </Button>

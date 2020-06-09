@@ -22,7 +22,6 @@ function parseJSON (response, success) {
   return response.text().then(function (text) {
     if (isJSON(text)) {
       text = JSON.parse(text)
-      console.log('text',text)
       if (!text.flag && text.code == '401') {
         message.warning('账号未登录或登录态失效')
         setTimeout(() => {
@@ -53,7 +52,13 @@ export default function request (url, options) {
         options = { method: 'get' }
       }
       options.mode = 'cors'
-      options.headers.Authorization ='Bearer '+window.localStorage.getItem('token')
+      if(options.headers){
+        options.headers.Authorization ='Bearer '+ window.localStorage.getItem('token')
+      } else {
+        options.headers ={
+          Authorization: 'Bearer '+ window.localStorage.getItem('token')
+        }
+      }
       options = Object.assign(options, { credentials: 'include' })
     }
   return fetch(url, options)  

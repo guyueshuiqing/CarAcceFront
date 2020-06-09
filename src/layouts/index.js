@@ -38,6 +38,7 @@ class BasicLayout extends Component {
       getUserInfo(params).then((res)=>{
         if(res && !res.flag){
           message.error(res.message && res.message)
+          window.location = '/login'
           return
         }
         dispatch({
@@ -48,7 +49,7 @@ class BasicLayout extends Component {
           }
         })
       })
-    }  
+    }
   }
 
   getMenu = (roleEn,roleLimit) =>{
@@ -84,7 +85,7 @@ class BasicLayout extends Component {
     const roleLimit = userInfo.user && userInfo.user.limit || []
     const filterMenu = this.getMenu(roleEn, roleLimit)
     return (
-      <div key={Math.random(10)}>
+      <div>
         {
           pathname === '/login' || pathname === '/register' ? <div>{this.props.children}</div> :
           roleEn && roleEn === 'staff' && roleLimit && roleLimit.length <= 0 ? <div className={styles.noMenu}>请先找相关人员进行菜单权限授予! <div><Link to={`/login`}><span>切换登录</span></Link> </div></div> :
@@ -126,6 +127,7 @@ class BasicLayout extends Component {
                     //     search = ''
                     //   }
                     // }
+                    
                     search = ''
                     history.replace({
                       pathname,

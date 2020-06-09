@@ -1,56 +1,67 @@
-const dingDanSelect = [
-  {
-    type: 'input',
-    rules: [],
-    key: 'supplierName',
-    label: '供应商名称',
-  },
-  {
-    type: 'input',
-    rules: [],
-    key: 'orderNum',
-    label: '订单单号',
-    // disabled: true
-  },
-  {
-    type: 'input',
-    rules: [],
-    key: 'contractNum',
-    label: '合同号',
-  },{
-    type: 'rangePicker',
-    rules: [],
-    key: 'createDate',
-    label: '创建日期',
-  },
-  // {
-  //   type: 'select',
-  //   rules: [],
-  //   key: 'team_id',
-  //   label: '默认项目',
-  //   options:[]
-  // },
-  // {
-  //   type: 'select',
-  //   rules: [],
-  //   key: 'article_type',
-  //   label: '默认品类',
-  //   options:[]
-  // },
-]
+import moment from "moment"
+import { CarIcon } from 'components/index'
+import { Tooltip, Button, message, Popconfirm } from 'antd'
+import { insertDingDan,updateStatus, updateRuKuStatus, deleteDingDan, deleteShenGou,
+  insertShouHuo,updateChuKuStatus, insertChuKu } from 'services/servers'
 
-const shenGouSelect = [
+const ruKuStatus ={
+  passing: '等待审核',
+  passed: '审核已通过',
+  recycle: '已转变'
+}
+const chuKuStatus ={
+  passing: '等待审核',
+  passed: '审核已通过',
+  recycle: '已转变'
+}
+
+// 自动获取Modal表单  参数：表columns 获取的字段
+export const getSelect = (columns,arrs) =>{
+  if(!arrs || arrs.length <= 0 ){
+    return 
+  }
+  let selects = []
+  arrs.forEach((item)=>{
+    const colItem = columns.filter((i=>{
+      return i.key === item
+    }))[0]
+    selects.push(colItem)
+  })
+  // arrs.forEach((item)=>{
+  //   const colItem = columns.filter((i=>{
+  //     return i.key === item
+  //   }))[0]
+    
+  //   let select = {
+  //     type: 'input',
+  //     rules: [],
+  //     key: colItem.key,
+  //     label: colItem.title,
+  //   }
+  //   if(colItem.colName === 'indate'){
+  //     select.type = 'datePicker'
+  //   }
+  //   if(colItem.colName === 'remarks'){
+  //     select.type = 'textarea'
+  //   }
+  //   selects.push(select)
+  // })
+
+  return selects
+}
+
+export const ruKuSelect = [
   {
     type: 'input',
     rules: [],
-    key: 'applyStaff',
-    label: '申请人',
+    key: 'supplier',
+    label: '供应商',
   },
   {
     type: 'input',
     rules: [],
-    key: 'purchaseNum',
-    label: '申购单号',
+    key: 'ruKuNum',
+    label: '入库单号',
   },
   {
     type: 'input',
@@ -62,40 +73,131 @@ const shenGouSelect = [
     rules: [],
     key: 'createDate',
     label: '创建日期',
-  },{
-    type: 'rangePicker',
-    rules: [],
-    key: 'purchaseDate',
-    label: '采购限期',
-  },
-  // {
-  //   type: 'select',
-  //   rules: [],
-  //   key: 'team_id',
-  //   label: '默认项目',
-  //   options:[]
-  // },
-  // {
-  //   type: 'select',
-  //   rules: [],
-  //   key: 'article_type',
-  //   label: '默认品类',
-  //   options:[]
-  // },
+  }
 ]
 
-const shouhuoSelect = [
+export const getRuKuCols =(_this)=>{
+  const { history, cms } = _this.props
+  let username = ''
+  let role = ''
+  if(cms.userInfo.user){
+    username  = cms.userInfo.user.username || ''
+    role = cms.userInfo.role.roleEn || ''
+  }
+  let tuihuoCols = [{
+    key: 'ruKuNum',
+    title: '入库单号',
+    dataIndex: 'ruKuNum',
+    fixed: 'left',
+    colName: 'orderNum'
+  },{
+    key: 'supplier',
+    title: '供应商',
+    dataIndex: 'supplier',
+    colName: 'companyName',
+    // fixed: 'left'
+  },{
+    key: 'goodsName',
+    title: '物品名称',
+    dataIndex: 'goodsName',
+    colName: 'companyName',
+    // fixed: 'left'
+  },{
+    key: 'aidutStaff',
+    title: '审核人',
+    dataIndex: 'aidutStaff',
+    colName: 'userName',
+  },{
+    key: 'goodsNum',
+    title: '物品数量',
+    dataIndex: 'goodsNum',
+    colName: 'number'
+  },{
+    key: 'goodsUnit',
+    title: '单位',
+    dataIndex: 'goodsUnit',
+    colName: 'price'
+  },{
+    key: 'unitPrice',
+    title: '单价',
+    dataIndex: 'unitPrice',
+    colName: 'price'
+  },{
+    key: 'sumPrice',
+    title: '支出总金额',
+    dataIndex: 'sumPrice',
+    colName: 'price'
+  },{
+    key: 'createDate',
+    title: '创建日期',
+    dataIndex: 'createDate',
+    colName: 'date',
+    render: (text, record) => {
+      return <div>{text && moment(Number(text)).format('YYYY-MM-DD HH:mm')}</div>
+    }
+  },{
+    key: 'status',
+    title: '状态',
+    dataIndex: 'status',
+    colName: 'status',
+    render: (text,record)=>{
+      return <div>{text &&ruKuStatus[text]}</div>
+    }
+  },{
+    key: 'actions',
+    title: '操作',
+    dataIndex: 'cz',
+    fixed: 'right',
+    colName: 'actions',
+    width: 220,
+    render: ( text, record) =>{
+      const style={border: 'none', backgroundColor:'#fff',marginRight: '2px' }
+      return (<div style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around'}}>
+          {
+            role !== 'staff' && record.status === 'passing' &&
+            <Tooltip placement="topRight" title="审核">
+              <Popconfirm
+                title={`确认通过审核？`}
+                onConfirm={() => {
+                  record.username = username
+                  const params = {
+                    obj:record
+                  }
+                  updateRuKuStatus(params).then(res=>{
+                    if(res && !res.flag){
+                      message.error(res.message && res.message)
+                      return
+                    }
+                    _this.getTableData(_this.props)
+                    message.success('审核通过')
+                  })
+                }}
+                okText="是"
+                cancelText="否">
+                  <Button type="link" style={style}><CarIcon content="&#xe602;"/></Button>
+              </Popconfirm>
+            </Tooltip>
+          }
+      </div>)
+    }
+  }]
+
+  return tuihuoCols
+
+}
+
+export const chuKuSelect = [
   {
     type: 'input',
     rules: [],
-    key: 'shouhuoStaff',
-    label: '收货人',
+    key: 'aidutStaff',
+    label: '审核人',
   },
   {
     type: 'input',
     rules: [],
-    key: 'shouhuoNum',
-    label: '收货单号',
+    key: 'chuKuNum',
+    label: '出库单号',
   },
   {
     type: 'input',
@@ -105,363 +207,256 @@ const shouhuoSelect = [
   },{
     type: 'rangePicker',
     rules: [],
-    key: 'shouhuoDate',
-    label: '收货日期',
+    key: 'createDate',
+    label: '创建日期',
   }
 ]
 
-const tuihuoSelect = [
+export const getChuKuCols =(_this)=>{
+  const { history, cms } = _this.props
+  let username = ''
+  let role = ''
+  if(cms.userInfo.user){
+    username  = cms.userInfo.user.username || ''
+    role = cms.userInfo.role.roleEn || ''
+  }
+  let tuihuoCols = [{
+    key: 'chuKuNum',
+    title: '出库单号',
+    dataIndex: 'chuKuNum',
+    fixed: 'left',
+    colName: 'orderNum'
+  },{
+    key: 'goodsName',
+    title: '物品名称',
+    dataIndex: 'goodsName',
+    colName: 'companyName',
+    // fixed: 'left'
+  },{
+    key: 'aidutStaff',
+    title: '审核人',
+    dataIndex: 'aidutStaff',
+    colName: 'userName',
+  },{
+    key: 'goodsNum',
+    title: '物品数量',
+    dataIndex: 'goodsNum',
+    colName: 'number'
+  },{
+    key: 'goodsUnit',
+    title: '单位',
+    dataIndex: 'goodsUnit',
+    colName: 'price'
+  },{
+    key: 'unitPrice',
+    title: '单价',
+    dataIndex: 'unitPrice',
+    colName: 'price'
+  },{
+    key: 'sumPrice',
+    title: '支出总金额',
+    dataIndex: 'sumPrice',
+    colName: 'price'
+  },{
+    key: 'createDate',
+    title: '创建日期',
+    dataIndex: 'createDate',
+    colName: 'date',
+    render: (text, record) => {
+      return <div>{text && moment(Number(text)).format('YYYY-MM-DD HH:mm')}</div>
+    }
+  },{
+    key: 'status',
+    title: '状态',
+    dataIndex: 'status',
+    colName: 'status',
+    render: (text,record)=>{
+      return <div>{text && chuKuStatus[text]}</div>
+    }
+  },{
+    key: 'actions',
+    title: '操作',
+    dataIndex: 'cz',
+    fixed: 'right',
+    colName: 'actions',
+    width: 220,
+    render: ( text, record) =>{
+      const style={border: 'none', backgroundColor:'#fff',marginRight: '2px' }
+      return (<div style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around'}}>
+          {
+            role !== 'staff' && record.status === 'passing' &&
+            <Tooltip placement="topRight" title="审核">
+              <Popconfirm
+                title={`确认通过审核？`}
+                onConfirm={() => {
+                  record.username = username
+                  const params = {
+                    obj:record
+                  }
+                  updateChuKuStatus(params).then(res=>{
+                    if(res && !res.flag){
+                      message.error(res.message && res.message)
+                      return
+                    }
+                    _this.getTableData(_this.props)
+                    message.success('审核通过')
+                  })
+                }}
+                okText="是"
+                cancelText="否">
+                  <Button type="link" style={style}><CarIcon content="&#xe602;"/></Button>
+              </Popconfirm>
+            </Tooltip>
+          }
+          {
+            record.status === 'passed' && 
+            <Tooltip placement="topRight" title="申请出库">
+              <Popconfirm
+                title={`确认申请出库？`}
+                onConfirm={() => {
+                  record.action = "chuku"
+                  record.aidutStaff = username
+                  const params = {
+                    obj:record
+                  }
+                  insertChuKu(params).then(res=>{
+                    if(res && !res.flag){
+                      message.error(res.message && res.message)
+                      return
+                    }
+                    _this.getTableData(_this.props)
+                    message.success('申请以提交')
+                  })
+                }}
+                okText="是"
+                cancelText="否">
+                  <Button type="link" style={style}><CarIcon content="&#xe600;"/></Button>
+              </Popconfirm>
+            </Tooltip>
+          }
+      </div>)
+    }
+  }]
+
+  return tuihuoCols
+
+}
+
+
+export const kuCunSelect = [
   {
     type: 'input',
     rules: [],
-    key: 'tuihuoStaff',
-    label: '经办人',
+    key: 'aidutStaff',
+    label: '审核人',
   },
   {
     type: 'input',
     rules: [],
-    key: 'tuihuoNum',
-    label: '退货单号',
+    key: 'kuCunNum',
+    label: '出库单号',
   },
   {
     type: 'input',
     rules: [],
     key: 'goodsName',
     label: '商品名称',
-  },{
-    type: 'rangePicker',
-    rules: [],
-    key: 'shouhuoDate',
-    label: '收货日期',
   }
 ]
 
-let dingDanCols = [{
-  key: 'orderNum',
-  title: '订单单号',
-  dataIndex: 'orderNum',
-  fixed: 'left',
-  colName: 'orderNum'
-},{
-  key: 'clientName',
-  title: '供应商名称',
-  dataIndex: 'clientName',
-  colName: 'companyName'
-},{
-  key: 'contractNum',
-  title: '采购合同号',
-  dataIndex: 'orderNum',
-  colName: 'contractNum'
-},{
-  key: 'sumPrice',
-  title: '总金额',
-  dataIndex: 'sumPrice',
-  colName: 'price'
-},{
-  key: 'applyPrice',
-  title: '已申请付款金额',
-  dataIndex: 'applyPrice',
-  colName: 'price'
-},{
-  key: 'paidPrice',
-  title: '已支付金额',
-  dataIndex: 'paidPrice',
-  colName: 'price'
-},{
-  key: 'deliveryDate',
-  title: '交货日期',
-  dataIndex: 'deliveryDate',
-  colName: 'date'
-},{
-  key: 'createDate',
-  title: '创建日期',
-  dataIndex: 'createDate',
-  colName: 'date'
-},{
-  key: 'status',
-  title: '状态',
-  dataIndex: 'status',
-  colName: 'status'
-},{
-  key: 'actions',
-  title: '操作',
-  dataIndex: 'cz',
-  fixed: 'right',
-  colName: 'actions',
-  width: 220,
-}]
-
-let shenGouCols = [{
-  key: 'applyStaff',
-  title: '申请人',
-  dataIndex: 'applyStaff',
-  colName: 'userName',
-  fixed: 'left'
-},{
-  key: 'goods',
-  title: '商品名称',
-  dataIndex: 'applyStaff',
-  colName: 'companyName',
-  fixed: 'left'
-},{
-  key: 'purchaseNum',
-  title: '申购单单号',
-  dataIndex: 'orderNum',
-  // fixed: 'left',
-  colName: 'orderNum'
-},{
-  key: 'goodsNum',
-  title: '商品数量',
-  dataIndex: 'orderNum',
-  colName: 'number'
-},{
-  key: 'goodsUnit',
-  title: '单位',
-  dataIndex: 'goodsUnit',
-  colName: 'price'
-},{
-  key: 'unitPrice',
-  title: '单价',
-  dataIndex: 'unitPrice',
-  colName: 'price'
-},{
-  key: 'sumPrice',
-  title: '总金额',
-  dataIndex: 'sumPrice',
-  colName: 'price'
-},{
-  key: 'createDate',
-  title: '申请日期',
-  dataIndex: 'createDate',
-  colName: 'date'
-},{
-  key: 'purchaseDate',
-  title: '限购日期',
-  dataIndex: 'purchaseDate',
-  colName: 'indate'
-},{
-  key: 'status',
-  title: '状态',
-  dataIndex: 'status',
-  colName: 'status'
-},{
-  key: 'remarks',
-  title: '备注',
-  dataIndex: 'remarks',
-  colName: 'remarks'
-},{
-  key: 'actions',
-  title: '操作',
-  dataIndex: 'cz',
-  fixed: 'right',
-  colName: 'actions',
-  width: 220,
-}]
-
-let shouhuoCols = [{
-  key: 'shouhuoNum',
-  title: '采购收货单号',
-  dataIndex: 'orderNum',
-  fixed: 'left',
-  colName: 'orderNum'
-},{
-  key: 'goods',
-  title: '物品名称',
-  dataIndex: 'applyStaff',
-  colName: 'companyName',
-  // fixed: 'left'
-},{
-  key: 'shouhuoStaff',
-  title: '申请人',
-  dataIndex: 'shouhuoStaff',
-  colName: 'userName',
-},{
-  key: 'goodsNum',
-  title: '物品数量',
-  dataIndex: 'orderNum',
-  colName: 'number'
-},{
-  key: 'goodsUnit',
-  title: '单位',
-  dataIndex: 'goodsUnit',
-  colName: 'price'
-},{
-  key: 'unitPrice',
-  title: '单价',
-  dataIndex: 'unitPrice',
-  colName: 'price'
-},{
-  key: 'sumPrice',
-  title: '总金额',
-  dataIndex: 'sumPrice',
-  colName: 'price'
-},{
-  key: 'shouhuoDate',
-  title: '收货日期',
-  dataIndex: 'shouhuoDate',
-  colName: 'date'
-},{
-  key: 'remarks',
-  title: '备注',
-  dataIndex: 'remarks',
-  colName: 'remarks'
-},{
-  key: 'actions',
-  title: '操作',
-  dataIndex: 'cz',
-  fixed: 'right',
-  colName: 'actions',
-  width: 220,
-}]
-
-let tuihuoCols = [{
-  key: 'shouhuoNum',
-  title: '采购退货单号',
-  dataIndex: 'orderNum',
-  fixed: 'left',
-  colName: 'orderNum'
-},{
-  key: 'goods',
-  title: '物品名称',
-  dataIndex: 'applyStaff',
-  colName: 'companyName',
-  // fixed: 'left'
-},{
-  key: 'shouhuoStaff',
-  title: '经办人',
-  dataIndex: 'shouhuoStaff',
-  colName: 'userName',
-},{
-  key: 'goodsNum',
-  title: '物品数量',
-  dataIndex: 'orderNum',
-  colName: 'number'
-},{
-  key: 'goodsUnit',
-  title: '单位',
-  dataIndex: 'goodsUnit',
-  colName: 'price'
-},{
-  key: 'unitPrice',
-  title: '单价',
-  dataIndex: 'unitPrice',
-  colName: 'price'
-},{
-  key: 'sumPrice',
-  title: '支出总金额',
-  dataIndex: 'sumPrice',
-  colName: 'price'
-},{
-  key: 'shouhuoDate',
-  title: '出货日期',
-  dataIndex: 'shouhuoDate',
-  colName: 'date'
-},{
-  key: 'remarks',
-  title: '备注',
-  dataIndex: 'remarks',
-  colName: 'remarks'
-},{
-  key: 'actions',
-  title: '操作',
-  dataIndex: 'cz',
-  fixed: 'right',
-  colName: 'actions',
-  width: 220,
-}]
-
-const dataSource = [
-  {
-    id: '1',
-    name: '胡彦斌',
-    age: 32,
-    address: '湖底公园1号',
-    orderNum: 'XT-20200304',
-    applyStaff: '就截击'
-  },
-  {
-    id: '2',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304',
-    applyStaff: '撒第三方'
-  },
-  {
-    id: '6',
-    name: '胡彦斌',
-    age: 32,
-    address: '湖底公园1号',
-    orderNum: 'XT-20200304'
-  },
-  {
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
-  },{
-    id: '7',
-    name: '胡彦祖',
-    age: 42,
-    address: '湖底公园1号',
-    orderNum: 'SS-20200304'
+export const getKuCunCols =(_this)=>{
+  const { history, cms } = _this.props
+  let username = ''
+  let role = ''
+  if(cms.userInfo.user){
+    username  = cms.userInfo.user.username || ''
+    role = cms.userInfo.role.roleEn || ''
   }
-]
+  let tuihuoCols = [{
+    key: 'kuCunNum',
+    title: '库存单号',
+    dataIndex: 'kuCunNum',
+    fixed: 'left',
+    colName: 'orderNum'
+  },{
+    key: 'goodsName',
+    title: '物品名称',
+    dataIndex: 'goodsName',
+    colName: 'companyName',
+    // fixed: 'left'
+  },{
+    key: 'goodsNum',
+    title: '物品数量',
+    dataIndex: 'goodsNum',
+    colName: 'number'
+  },{
+    key: 'goodsUnit',
+    title: '单位',
+    dataIndex: 'goodsUnit',
+    colName: 'userName'
+  },{
+    key: 'unitPrice',
+    title: '单价',
+    dataIndex: 'unitPrice',
+    colName: 'inprice'
+  },{
+    key: 'sumPrice',
+    title: '总金额',
+    dataIndex: 'sumPrice',
+    colName: 'inprice'
+  },{
+    key: 'breakdown',
+    title: '破损',
+    dataIndex: 'breakdown',
+    colName: 'inprice'
+  },{
+    key: 'actions',
+    title: '操作',
+    dataIndex: 'cz',
+    fixed: 'right',
+    colName: 'actions',
+    width: 220,
+    render: ( text, record) =>{
+      const style={border: 'none', backgroundColor:'#fff',marginRight: '2px' }
+      return (<div style={{display: 'flex',flexDirection: 'row',justifyContent: 'space-around'}}>
+          {
+            (role !== 'staff' || (username === record.applyStaff && record.status === 'create')) && 
+              <Tooltip placement="topRight" title="更新单价">
+                <Button type="link" style={style} onClick={()=>{
+                  let selects = getSelect(getKuCunCols(_this),['unitPrice'])
+                  selects[0].title = "最新单价"
+                  _this.setState({
+                    selectRow: record,
+                    edit: false,
+                    actionModal: 'eidt',
+                    formCols: selects
+                  },()=>{
+                    _this.changeVisiable()
+                  })
+                  
+                }}><CarIcon content="&#xe74d;"/></Button>
+              </Tooltip>
+          }
 
+          <Tooltip placement="topRight" title="报损">
+                <Button type="link" style={style} onClick={()=>{
+                  let selects = getSelect(getKuCunCols(_this),['breakdown'])
+                  selects[0].title = "提交破损数"
+                  console.log('selects',selects)
+                  _this.setState({
+                    selectRow: record,
+                    edit: false,
+                    actionModal: 'break',
+                    formCols: selects
+                  },()=>{
+                    _this.changeVisiable()
+                  })
+                }}><CarIcon content="&#xe600;"/></Button>
+          </Tooltip>
+      </div>)
+    }
+  }]
 
+  return tuihuoCols
 
-
-export {
-  dingDanSelect,
-  shenGouSelect,
-  shouhuoSelect,
-  tuihuoSelect,
-  dingDanCols,
-  shenGouCols,
-  shouhuoCols,
-  tuihuoCols,
-  dataSource
 }

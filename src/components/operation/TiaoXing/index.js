@@ -1,19 +1,6 @@
 import React, { Component } from 'react'
 import { Bar } from '@antv/g2plot'
 
-const data = [
-  { 公司: '奔驰', 收入额: 4684506.442 },
-  { 公司: '昵称', 收入额: 4137415.0929999948 },
-  { 公司: '哈哈是', 收入额: 2681567.469000001 },
-  { 公司: '五大', 收入额: 2447301.017000004 },
-  { 公司: '萨迪家乐福', 收入额: 1303124.508000002 },
-  { 公司: '撒多思考', 收入额: 815039.5959999998 },
-  { 公司: '埃及大部', 收入额: 815036.5959999998 },
-  { 公司: 's大市口', 收入额: 815031.5959999998 },
-  { 公司: '看反馈的', 收入额: 815020.5959999998 },
-  { 公司: '开了房', 收入额: 815011.5959999998 },
-];
-
 const colors = {
   blue:[
   '#A6CBE0',
@@ -60,8 +47,7 @@ class TiaoXing extends Component {
   }
 
   componentDidMount(){
-    const { title,xField, yField, formatter, color, colorField  } = this.props
-    console.log(title)
+    const { title,xField, yField, formatter, color, colorField,data } = this.props
     const barPlot = new Bar(this.refT, {
       title: {
         visible: true,

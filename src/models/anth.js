@@ -1,4 +1,4 @@
-import { fetchEditorInfo } from '../services/servers'
+import { fetchEditorInfo, insertShenGou  } from '../services/servers'
 import { cloneDeep } from 'lodash'
 import { message } from 'antd'
 
@@ -32,6 +32,16 @@ export default {
         message.warn(error.error)
       }
     },
+
+    * insertShenGou ({ payload,callback }, { call, put }) {
+      try {
+        const res = yield call(insertShenGou, payload)
+        callback && callback(res, null)
+      } catch (error) {
+        callback && callback(null, error)
+        message.warn(error.error)
+      }
+    },
   },
   reducers: {
     updateData (state, { payload }) {
@@ -40,7 +50,6 @@ export default {
 
     updateState (state, { payload }) {
       let _state = cloneDeep(state)
-      console.log('payload',payload,_state)
       _state[payload.key] = payload.val
       return _state
     }

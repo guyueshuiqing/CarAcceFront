@@ -17,12 +17,10 @@ export default {
         { path: '/operation/yinshou', component: '../pages/operation/yinshou' },
         { path: '/operation/jinchukut', component: '../pages/operation/jinchukut' },
         { path: '/sale/xiaoshoud', component: '../pages/sale/xiaoshoud' },
-        { path: '/sale/xiaoshouk', component: '../pages/sale/xiaoshouk' },
         { path: '/sale/xiaoshout', component: '../pages/sale/xiaoshout' },
         { path: '/store/caigour', component: '../pages/store/caigour' },
-        { path: '/store/caigoutc', component: '../pages/store/caigoutc' },
+        { path: '/store/kucun', component: '../pages/store/kucun' },
         { path: '/store/xiaoshouc', component: '../pages/store/xiaoshouc' },
-        { path: '/store/xiaoshoutr', component: '../pages/store/xiaoshoutr' },
         { path: '/quanxian', component: '../pages/grant' },
         { path: '/login', component: '../pages/auth/login' },
         { path: '/register', component: '../pages/auth/register' },
@@ -75,7 +73,11 @@ export default {
     '/api': {
       target: 'http://localhost:8080',
       pathRewrite: { '^/api': '' },
-      changeOrigin: true
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        withCredentials: true,
+      },
+      changeOrigin: true,
     }
   }
 }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'dva'
+import cookie from 'react-cookies'
 import {message} from 'antd'
 
 import { AuthFormCreate } from 'components/index'
@@ -21,7 +22,6 @@ class Login  extends Component {
           fromData={LoginFromData} 
           compName='login' 
           onSubmit={(values,current)=>{
-            console.log('refFFF',current)
             let params ={
               obj:values
             }
@@ -40,9 +40,10 @@ class Login  extends Component {
                 }
               })
               window.localStorage.setItem('token',res.data.token)
+              cookie.save('username',res.data.userInfo.user.username)
+              cookie.save('role',res.data.userInfo.role.roleEn)
               window.localStorage.setItem('username',res.data.userInfo.user.username)
               setTimeout(() => {
-                console.log('ref',current)
                 current.resetFields()
                 const { history } = this.props
                 history.push('/')

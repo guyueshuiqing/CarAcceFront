@@ -3,15 +3,15 @@ import { connect } from 'dva'
 import { message } from 'antd'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
-import { getAllRuKu, getOwnRuKu, getFilterRuKu, updateRuKuDate,updateRuKuPrice } from '../../../services/servers'
+import { getAllKuCun, getOwnKuCun, getFilterKuCun, updateKuCunUnit,updateKuCunBreak } from '../../../services/servers'
 import { TableCom, Header } from 'components/index.js'
-import { ruKuSelect, getRuKuCols } from '../config'
+import { kuCunSelect, getKuCunCols } from '../config'
 
 @connect(state => ({
   cms: state.cms
 }))
 
-class RuKu  extends Component {
+class KuCun  extends Component {
   constructor(props) {
     super(props);
     this.state = { 
@@ -58,7 +58,7 @@ class RuKu  extends Component {
     const role  = cms.userInfo.role.roleEn
 
     if(role !== 'staff'){
-      getAllRuKu().then(res=>{
+      getAllKuCun().then(res=>{
         if(res && !res.flag){
           message.error(res.message && res.message)
           return
@@ -72,7 +72,7 @@ class RuKu  extends Component {
       const params = {
         username: username
       }
-      getOwnRuKu(params).then(res=>{
+      getOwnKuCun(params).then(res=>{
         if(res && !res.flag){
           message.error(res.message && res.message)
           return
@@ -105,7 +105,7 @@ class RuKu  extends Component {
     const params = {
       obj: val
     }
-    getFilterRuKu(params).then(res=>{
+    getFilterKuCun(params).then(res=>{
       if(res && !res.flag){
         message.error(res.message && res.message)
         return
@@ -128,33 +128,32 @@ class RuKu  extends Component {
     if(values.deLiveryDate){
       formData.deLiveryDate = moment(values.deLiveryDate).valueOf()
     }
-      // 申请人就是本用户
-    formData.payApplyStaff = userInfo.user.username
-    formData.dingDanNum = selectRow.dingDanNum
-    if(actionModal === 'updateDate' || actionModal === 'verifyDate'){
+    formData.kuCunNum = selectRow.kuCunNum
+    if(actionModal === 'eidt'){
+      formData.goodsNum = selectRow.goodsNum
       const params = {
         obj: formData
       }
-      updateRuKuDate(params).then(res=>{
+      updateKuCunUnit(params).then(res=>{
         if(res && !res.flag){
           message.error(res.message && res.message)
           return
         }
         this.getTableData(this.props)
-        message.success('日期已变更！')
+        message.success('单价更新成功')
       })
     }
-    if(actionModal === 'applyPrice'){
+    if(actionModal === 'break'){
       const params = {
         obj: formData
       }
-      updateRuKuPrice(params).then(res=>{
+      updateKuCunBreak(params).then(res=>{
         if(res && !res.flag){
           message.error(res.message && res.message)
           return
         }
         this.getTableData(this.props)
-        message.success('资金申请已提交！')
+        message.success('破损报备成功')
       })
     }
 
@@ -181,8 +180,10 @@ class RuKu  extends Component {
 
   getTitle = () =>{
     const { actionModal } = this.state
+    console.log()
     const allTitle = {
-      reason:'退货原因',
+      break:'报损',
+      edit: '更新单价'
     }
     return allTitle[actionModal]
   }
@@ -190,17 +191,18 @@ class RuKu  extends Component {
   render() { 
     const { tableData, newVisible, edit, selectRow, loading, formCols} = this.state
     const otherNewForm = formCols || []
+
     return (
       <div>
         <Header 
           submitForm={this.submitForm} 
           getTableData={this.getTableData}
-          selectForm={ruKuSelect} 
+          selectForm={kuCunSelect} 
           row 
           size='small'/>
         <TableCom 
           loading={loading}
-          reqColumns={getRuKuCols(this)} 
+          reqColumns={getKuCunCols(this)} 
           otherNewForm={otherNewForm}
           dataSource={tableData} 
           newFormSubmit={this.newFormSubmit} 
@@ -217,4 +219,4 @@ class RuKu  extends Component {
 }
  
  
-export default RuKu
+export default KuCun

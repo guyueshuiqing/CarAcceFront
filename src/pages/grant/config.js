@@ -1,4 +1,32 @@
-import { Divider, Popconfirm, Button, Popover } from 'antd'
+import { Divider, Popconfirm, message, Radio } from 'antd'
+import { deleteUser, updateRole } from '../../services/servers'
+
+
+function updateAuth(_this, currentRole,rowRole) {
+  if(!currentRole || currentRole === ''){ return <span>您无权限</span> }
+  const radioStyle = {
+    display: 'block',
+    height: '30px',
+    lineHeight: '30px',
+  }
+
+  if(currentRole === 'admin' || currentRole === 'superAdmin'){
+    return <div style={{marginRight: '15px'}}>
+      <Radio.Group onChange={(e)=>{
+        _this.setState({
+          radioValue: e.target.value,
+        })
+      }} value={_this.state.radioValue}>
+        <Radio style={radioStyle} disabled={(rowRole === 'superAdmin' || (rowRole === 'admin' && currentRole === 'admin'))} value={`upgrade`}>
+          权限提升
+        </Radio>
+        <Radio style={radioStyle} disabled={(rowRole === 'staff')} value={`fall`}>
+          权限降级
+        </Radio>
+      </Radio.Group>
+    </div>
+  }
+}
 
 export const getColumns = (_this) =>{
 
@@ -9,7 +37,7 @@ export const getColumns = (_this) =>{
   }
   const cms = _this.props && _this.props.cms
   const currentUserRole = cms && cms.userInfo && cms.userInfo.role && cms.userInfo.role.roleEn || ''
-
+  const currentUserName = cms && cms.userInfo && cms.userInfo.user && cms.userInfo.user.username || ''
   let  allColumns  = [
     {
       title: '用户名',
@@ -62,11 +90,10 @@ export const getColumns = (_this) =>{
         </div>
       }
     },
-
     {
       title: '操作',
       key: 'actions',
-      width: 240,
+      width: 300,
       render: (record)=>{
         const stylec={ color: '#1890ff', cursor: 'pointer' }
         return (
@@ -79,30 +106,63 @@ export const getColumns = (_this) =>{
                   grantList: record.user && record.user.limit || [],
                   userInfoItem: record.user
                 })
-              }}>授权</span>
+              }}>菜单授权</span>
             }
             {
               record.role && record.role.roleEn && record.role.roleEn === 'staff' &&
               <Divider type="vertical"/>
             }
             {
-              record.role && record.role.roleEn && record.role.roleEn !== 'superAdmin' && 
+              record.role && record.role.roleEn && record.user.username !== currentUserName && ((
+                currentUserRole === 'admin' && record.role.roleEn !== 'superAdmin') || (currentUserRole === 'superAdmin')) &&
               <>
-                <span style={stylec}>提权</span>
-                <Divider type="vertical" />
+                <Popconfirm placement="top" icon={''} title={updateAuth(_this,currentUserRole,record.role.roleEn)} onConfirm={()=>{
+                  const value = _this.state.radioValue
+                  const username = record.user.username
+                  if(!value && value!==''){
+                    return
+                  }
+                  const params = {
+                    obj:{
+                      username: username,
+                      role: value
+                    }
+                  }
+                  updateRole(params).then((res)=>{
+                    if(res && !res.flag){
+                      message.error(res.message && res.message)
+                      return
+                    }
+                  })
+                }} okText="确认" cancelText="取消">
+                  <span style={stylec}>权限更新</span>
+                </Popconfirm>
+                {
+                  record.user.username !== currentUserName &&
+                  <Divider type="vertical" />
+                }
               </>
             }
             {
-              (currentUserRole ==='superAdmin' || (currentUserRole ==='admin' && record.role && record.role.roleEn !== 'superAdmin')) &&
+              record.user.username !== currentUserName &&(currentUserRole ==='superAdmin' || (currentUserRole ==='admin' && record.role && record.role.roleEn !== 'superAdmin')) &&
               <Popconfirm
                 title={`确认删除此员工吗？`}
                 onConfirm={() => {
-                  
+                  const user = record.user && record.user.username
+                  const params = {
+                    username: user
+                  }
+                  deleteUser(params).then(res=>{
+                    if(res && !res.flag){
+                      message.error(res.message && res.message)
+                      return
+                    }
+                  })
                 }}
                 okText="是"
                 cancelText="否"
               >
-              <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.25)' }}>删除</span>
+              <span style={{ cursor: 'pointer', color: 'rgba(0, 0, 0, 0.25)' }}>删除角色</span>
             </Popconfirm>
             }
             
@@ -111,6 +171,7 @@ export const getColumns = (_this) =>{
       }
     }
   ]
-
   return allColumns
 }
+
+
